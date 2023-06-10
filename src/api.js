@@ -14,9 +14,10 @@ export default class ApiService {
   }
 
   async fetchImages() {
-    const response = await axios(
-      `${BASE_URL}?key=${API_KEY}&q=${this.searchQuery}&image_type=${IMAGE_TYPE}&orientation=${ORIENTATION}&safesearch=${SAFESEARCH}&per_page=40&page=${this.page}`
-    ).catch(function (error) {
+    const response = await axios({
+      method: 'get',
+      url: `${BASE_URL}?key=${API_KEY}&q=${this.searchQuery}&image_type=${IMAGE_TYPE}&orientation=${ORIENTATION}&safesearch=${SAFESEARCH}&per_page=40&page=${this.page}`,
+    }).catch(function (error) {
       if (error.response) {
         console.log(error.response.data);
         console.log(error.response.status);

@@ -45,9 +45,6 @@ function onLoadMore() {
   apiService
     .fetchImages()
     .then(({ data: { hits, totalHits } }) => {
-      console.log(hits);
-      console.log('total', totalHits);
-
       appendImagesMarkup(hits);
       lightbox.refresh();
       onNewRequest(totalHits);

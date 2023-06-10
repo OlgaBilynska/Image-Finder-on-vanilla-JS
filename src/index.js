@@ -1,13 +1,21 @@
 import Notiflix from 'notiflix';
 import ApiService from './api';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const apiService = new ApiService();
 
 const searchFormEl = document.getElementById('search-form');
-const btnLoadMore = document.getElementById('load-more');
+const btnLoadMore = document.querySelector('.load-more');
 const btnEl = document.querySelector('button');
 const galleryEl = document.querySelector('.gallery');
-let totalHits = '';
+const options = {
+  captionsData: 'alt',
+  captionDelay: 250,
+};
+const lightbox = new SimpleLightbox('.gallery a', { options });
+
+btnLoadMore.classList.add('visually-hidden');
 
 searchFormEl.addEventListener('submit', onFormSubmit);
 btnLoadMore.addEventListener('click', onLoadMore);
@@ -15,16 +23,20 @@ btnLoadMore.addEventListener('click', onLoadMore);
 function onFormSubmit(evt) {
   evt.preventDefault();
   clearImagesContainer();
+  onHide();
   apiService.resetPage();
   apiService.query = evt.currentTarget.elements.searchQuery.value;
   apiService
     .fetchImages()
-    .then(array => {
-      console.log('full array', array);
-      if (array.length === 0) {
+    .then(({ data: { hits, totalHits } }) => {
+      console.log('full array', hits);
+      if (hits.length === 0) {
         onError();
+        return;
       }
-      appendImagesMarkup(array);
+      appendImagesMarkup(hits);
+      lightbox.refresh();
+      onAppear();
     })
     .catch(err => console.log(err));
 }
@@ -32,8 +44,17 @@ function onFormSubmit(evt) {
 function onLoadMore() {
   apiService
     .fetchImages()
-    .then(array => {
-      appendImagesMarkup(array);
+    .then(({ data: { hits, totalHits } }) => {
+      console.log(hits);
+      console.log('total', totalHits);
+
+      appendImagesMarkup(hits);
+      lightbox.refresh();
+      onNewRequest(totalHits);
+      if (hits.length === 0) {
+        onHide();
+        onEnd();
+      }
     })
     .catch(onError);
 }
@@ -42,20 +63,26 @@ function createMarkup(array) {
   return array
     .map(image => {
       return `<div class="photo-card">
-  <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
+      <a href="${image.largeImageURL}">
+  <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" class="min-image"/>
+  </a>
   <div class="info">
-    <p class="info-item">
-      <b>Likes</b>${image.likes}
-    </p>
-    <p class="info-item">
-      <b>Views</b>${image.views}
-    </p>
-    <p class="info-item">
-      <b>Comments</b>${image.comments}
-    </p>
-    <p class="info-item">
-      <b>Downloads</b>${image.downloads}
-    </p>
+    <div class="info-item">
+      <p><b>Likes</b></p>
+      <p class="number">${image.likes}</p>
+    </div>
+    <div class="info-item">
+      <p><b>Views</b></p>
+      <p class="number">${image.views}</p>
+    </div>
+    <div class="info-item">
+      <p><b>Comments</b></p>
+      <p class="number">${image.comments}</p>
+    </div>
+    <div class="info-item">
+      <p><b>Downloads</b></p>
+      <p class="number">${image.downloads}</p>
+    </div>
   </div>
 </div>`;
     })
@@ -74,4 +101,22 @@ function onError() {
   Notiflix.Notify.failure(
     'Sorry, there are no images matching your search query. Please try again.'
   );
+}
+
+function onEnd() {
+  Notiflix.Notify.warning(
+    `We're sorry, but you've reached the end of search results.`
+  );
+}
+
+function onNewRequest(totalHits) {
+  Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
+}
+
+function onHide() {
+  btnLoadMore.classList.add('visually-hidden');
+}
+
+function onAppear() {
+  btnLoadMore.classList.remove('visually-hidden');
 }

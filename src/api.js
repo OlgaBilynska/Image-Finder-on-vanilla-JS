@@ -1,3 +1,6 @@
+import axios from 'axios';
+
+const axios = require('axios');
 const API_KEY = '6725923-1edca42cf91687372f6490452';
 const BASE_URL = 'https://pixabay.com/api/';
 const IMAGE_TYPE = 'photo';
@@ -10,17 +13,43 @@ export default class ApiService {
     this.page = 1;
   }
 
-  fetchImages() {
-    console.log('before', this);
-    return fetch(
-      `${BASE_URL}?key=${API_KEY}&q=${this.searchQuery}&image_type=${IMAGE_TYPE}&orientation=${ORIENTATION}&safesearch=${SAFESEARCH}&per_page=40&page=${this.page}`
-    )
-      .then(response => response.json())
-      .then(data => {
-        this.incrementPage();
-        return data.hits;
+  async fetchImages() {
+    const response = await axios
+      .get(
+        `${BASE_URL}?key=${API_KEY}&q=${this.searchQuery}&image_type=${IMAGE_TYPE}&orientation=${ORIENTATION}&safesearch=${SAFESEARCH}&per_page=40&page=${this.page}`
+      )
+      .catch(function (error) {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          console.log(error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log('Error', error.message);
+        }
+        console.log(error.config);
       });
+
+    this.incrementPage();
+    return response;
   }
+
+  // return
+  //       .then(data => {
+  //
+  //         return data.hits;
+  //       })
+  //       .catch(function (error) {
+  //         console.log(error);
+  //       });
+  //   }
 
   incrementPage() {
     this.page += 1;

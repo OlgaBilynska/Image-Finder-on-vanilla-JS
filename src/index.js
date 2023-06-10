@@ -20,13 +20,13 @@ btnLoadMore.classList.add('visually-hidden');
 searchFormEl.addEventListener('submit', onFormSubmit);
 btnLoadMore.addEventListener('click', onLoadMore);
 
-function onFormSubmit(evt) {
+async function onFormSubmit(evt) {
   evt.preventDefault();
   clearImagesContainer();
   onHide();
   apiService.resetPage();
   apiService.query = evt.currentTarget.elements.searchQuery.value;
-  apiService
+  await apiService
     .fetchImages()
     .then(({ data: { hits, totalHits } }) => {
       console.log('full array', hits);

@@ -26,34 +26,34 @@ async function onFormSubmit(evt) {
   onHide();
   apiService.resetPage();
   apiService.query = evt.currentTarget.elements.searchQuery.value;
-  await apiService
-    .fetchImages()
-    .then(({ data: { hits, totalHits } }) => {
-      console.log('full array', hits);
-      if (hits.length === 0) {
-        onError();
-        return;
-      }
-      appendImagesMarkup(hits);
-      lightbox.refresh();
-      onAppear();
-    })
-    .catch(err => console.log(err));
+  try {
+    const { hits, totalHits } = await apiService.fetchImages();
+    console.log('full array', hits);
+    if (hits.length === 0) {
+      onError();
+      return;
+    }
+    appendImagesMarkup(hits);
+    lightbox.refresh();
+    onAppear();
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function onLoadMore() {
-  apiService
-    .fetchImages()
-    .then(({ data: { hits, totalHits } }) => {
-      appendImagesMarkup(hits);
-      lightbox.refresh();
-      onNewRequest(totalHits);
-      if (hits.length === 0) {
-        onHide();
-        onEnd();
-      }
-    })
-    .catch(onError);
+async function onLoadMore() {
+  try {
+    const { hits, totalHits } = await apiService.fetchImages();
+    appendImagesMarkup(hits);
+    lightbox.refresh();
+    onNewRequest(totalHits);
+    if (hits.length === 0) {
+      onHide();
+      onEnd();
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function createMarkup(array) {

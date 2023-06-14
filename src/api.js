@@ -14,8 +14,9 @@ export default class ApiService {
   }
 
   async fetchImages() {
-    const { data } = await axios({`${BASE_URL}?key=${API_KEY}&q=${this.searchQuery}&image_type=${IMAGE_TYPE}&orientation=${ORIENTATION}&safesearch=${SAFESEARCH}&per_page=40&page=${this.page}`,
-    });
+    const { data } = await axios(
+      `${BASE_URL}?key=${API_KEY}&q=${this.searchQuery}&image_type=${IMAGE_TYPE}&orientation=${ORIENTATION}&safesearch=${SAFESEARCH}&per_page=40&page=${this.page}`
+    );
 
     this.incrementPage();
     return data;

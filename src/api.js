@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-const axios = require('axios');
 const API_KEY = '6725923-1edca42cf91687372f6490452';
 const BASE_URL = 'https://pixabay.com/api/';
 const IMAGE_TYPE = 'photo';
